@@ -34,7 +34,7 @@ def visualize_reduced_logits(data: pd.DataFrame, n_components: int = 2, perplexi
     plt.xlabel('t-SNE Component 1')
     plt.ylabel('t-SNE Component 2')
     plt.grid(True)
-    plt.show()
+    #plt.show()
 
     ### save the plot as an image file
     plt.savefig('tsne_reduced_logits.png')
