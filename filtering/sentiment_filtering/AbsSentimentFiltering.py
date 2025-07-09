@@ -48,9 +48,18 @@ class AbsSentimentFilter(ABC):
 
         texts['prob_vector'] = all_probs
         return texts
+    
+    @abstractmethod
+    def label_sentiment(self, data: pd.DataFrame) -> pd.DataFrame:
+        '''
+        Abstract method for labeling sentiment.
+        :param data: DataFrame with sentiment scores.
+        :return: DataFrame with labeled sentiments.
+        '''
+        pass
 
     @abstractmethod
-    def filter(self, texts: pd.DataFrame) -> pd.DataFrame:
+    def filter(self, sentiment: str, texts: pd.DataFrame) -> pd.DataFrame:
         '''
         Abstract method for filtering sentiment.
         :param texts: List of texts to filter.
