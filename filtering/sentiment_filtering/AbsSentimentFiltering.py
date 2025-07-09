@@ -36,6 +36,7 @@ class AbsSentimentFilter(ABC):
 
         sequences = texts["sequence"].tolist()
         all_probs = []
+        all_logits = []
 
         for i in tqdm(range(0, len(sequences), batch_size), desc="Analyzing sentiments"):
             batch = sequences[i:i+batch_size]
@@ -45,7 +46,10 @@ class AbsSentimentFilter(ABC):
                 logits = self.model(**inputs).logits
                 probs = softmax(logits, dim=-1).cpu().numpy()  # (batch_size, num_classes)
                 all_probs.extend(probs)
+                all_logits.extend(logits.cpu().numpy())
 
+        ### Logits are required for clustering other than probability vectors.
+        texts['prob_logits'] = all_logits
         texts['prob_vector'] = all_probs
         return texts
     
