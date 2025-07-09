@@ -15,7 +15,7 @@ def test_sentiment_filtering():
     data = load_data()
     # data = data.head(100)
     
-    data = preprocess_data(data, DataFormat.TITLE_COMMENT)  # Limit to 100 rows for testing
+    data = preprocess_data(data, DataFormat.COMMENT_ONLY)  # Limit to 100 rows for testing
 
     Voting = VotingSentimentFilter()
 
