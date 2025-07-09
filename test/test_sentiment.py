@@ -1,8 +1,13 @@
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
 ### Tester file for sentiment filtering and analysis.
 import pandas as pd
 from filtering.sentiment_filtering.AbsSentimentFiltering import AbsSentimentFilter
 from filtering.sentiment_filtering.sentimentFiltering import VotingSentimentFilter
 from filtering.filtering_options import SentimentFilteringOptions
+
 def test_sentiment_filtering():
     # Load dafa from a sample CSV file
     data = pd.read_csv('./data/Sentiment_Monitoring_2020-01-01.csv')
