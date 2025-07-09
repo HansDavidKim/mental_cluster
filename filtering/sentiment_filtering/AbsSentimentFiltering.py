@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from filtering_options import SentimentFilteringOptions
+from filtering.filtering_options import SentimentFilteringOptions
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 import pandas as pd
 
