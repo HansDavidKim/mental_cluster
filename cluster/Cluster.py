@@ -3,6 +3,7 @@
 import pandas as pd
 import numpy as np
 from sklearn.decomposition import PCA
+from sklearn.preprocessing import StandardScaler
 from cluster.DimReductionOption import DimReductionOptions
 from ast import literal_eval
 
@@ -31,6 +32,9 @@ class Cluster:
             X['prob_logits'] = X['prob_logits'].apply(lambda s: np.fromstring(s.strip("[]"), sep=" "))
 
         logits_matrix = np.vstack(X['prob_logits'].to_numpy())
+        # Standardize the data
+        scaler = StandardScaler()
+        logits_matrix = scaler.fit_transform(logits_matrix)
         reduced = self.pca.fit_transform(logits_matrix)
 
         X = X.copy()
