@@ -5,7 +5,7 @@ from matplotlib import pyplot as plt
 ### t-SNE is a popular dimensionality reduction technique that is particularly well-suited for visualizing high-dimensional data.
 from sklearn.manifold import TSNE
 
-def visualize_reduced_logits(data_path: str, n_components: int = 2, perplexity: int = 30):
+def visualize_reduced_logits(data: pd.DataFrame, n_components: int = 2, perplexity: int = 30):
     """
     Visualize the reduced logits using t-SNE.
     
@@ -18,7 +18,6 @@ def visualize_reduced_logits(data_path: str, n_components: int = 2, perplexity: 
     None: Displays a scatter plot of the reduced logits.
     """
     # Extract the reduced logits
-    data = pd.read_csv(data_path)
     reduced_logits = np.vstack(data['reduced_logits'].to_numpy())
     
     # Apply t-SNE
