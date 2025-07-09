@@ -15,4 +15,4 @@ if __name__ == '__main__':
     cluster_object = Cluster.Cluster(n_components=15)
     data = pd.read_csv(data_path)
     data = cluster_object.fit_transform(data)
-    visualize_reduced_logits.visualize_reduced_logits(data_path, n_components, perplexity)
+    visualize_reduced_logits(data_path, n_components, perplexity)
