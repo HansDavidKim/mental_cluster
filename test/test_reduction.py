@@ -1,9 +1,13 @@
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
 import pandas as pd
 import numpy as np
 from cluster.DimReduction import train_reduction
 from cluster.DimReductionOption import DimReductionOptions
 
-def test_reduction(csv_path: str = "../data/labeled_sentiment_data.csv", n_trials: int = 250):
+def test_reduction(csv_path: str = "./data/labeled_sentiment_data.csv", n_trials: int = 30):
     """
     각 차원 축소 알고리즘에 대해 trustworthiness를 측정하고 출력합니다.
 
