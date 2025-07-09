@@ -13,7 +13,7 @@ from Dataloader import load_data, preprocess_data, DataFormat
 def test_sentiment_filtering():
     # Load data from a sample CSV file
     data = load_data()
-    data = data.head(100)
+    # data = data.head(100)
     
     data = preprocess_data(data, DataFormat.TITLE_COMMENT)  # Limit to 100 rows for testing
 
