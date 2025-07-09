@@ -8,10 +8,14 @@ from filtering.sentiment_filtering.AbsSentimentFiltering import AbsSentimentFilt
 from filtering.sentiment_filtering.sentimentFiltering import VotingSentimentFilter
 from filtering.filtering_options import SentimentFilteringOptions
 
+from Dataloader import load_data, preprocess_data, DataFormat
+
 def test_sentiment_filtering():
     # Load data from a sample CSV file
-    data = pd.read_csv('./data/Sentiment_Monitoring_2020-01-01.csv')
-    data = data.head(100)  # Limit to 100 rows for testing
+    data = load_data()
+    data = data.head(100)
+    
+    data = preprocess_data(data, DataFormat.TITLE_COMMENT)  # Limit to 100 rows for testing
 
     Voting = VotingSentimentFilter()
 

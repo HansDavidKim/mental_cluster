@@ -25,7 +25,7 @@ def load_data(
     ### Return loaded data as a pandas DataFrame.
     return data
 
-def preproess_data(
+def preprocess_data(
         data: pd.DataFrame, 
         data_format: DataFormat
         ) -> pd.DataFrame:
