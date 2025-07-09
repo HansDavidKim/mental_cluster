@@ -9,11 +9,12 @@ from filtering.sentiment_filtering.sentimentFiltering import VotingSentimentFilt
 from filtering.filtering_options import SentimentFilteringOptions
 
 def test_sentiment_filtering():
-    # Load dafa from a sample CSV file
+    # Load data from a sample CSV file
     data = pd.read_csv('./data/Sentiment_Monitoring_2020-01-01.csv')
     data = data.head(100)  # Limit to 100 rows for testing
 
     Voting = VotingSentimentFilter()
+
     # Perform sentiment analysis
     analyzed_data = Voting.sentiment_anlysis(data)
     assert 'prob_vector' in analyzed_data.columns, "Probability vector column not found in analyzed data."
@@ -24,13 +25,24 @@ def test_sentiment_filtering():
     assert 'sentiment' in labeled_data.columns, "Sentiment column not found in labeled data."
     assert 'sentiment_score' in labeled_data.columns, "Sentiment score column not found in labeled data."
 
-    # Saving the labeled data to a CSV file
+    # Save labeled full data
     labeled_data.to_csv('./data/labeled_sentiment_data.csv', index=False)
-    print("Sentiment filtering and labeling completed successfully. Labeled data saved to 'labeled_sentiment_data.csv'.")
+    print("✅ Labeled data saved to './data/labeled_sentiment_data.csv'.")
 
     # Filtering the data for a specific sentiment
-    sentiment_to_filter = '분노'  # Example sentiment
+    sentiment_to_filter = '분노'
     filtered_data = Voting.filter(sentiment_to_filter, labeled_data)
     assert not filtered_data.empty, f"No data found for sentiment: {sentiment_to_filter}"
-    print(f"Filtered data for sentiment '{sentiment_to_filter}':")
+
+    # Save filtered subset
+    filtered_filename = f'./data/filtered_sentiment_data_{sentiment_to_filter}.csv'
+    filtered_data.to_csv(filtered_filename, index=False)
+    print(f"✅ Filtered data for sentiment '{sentiment_to_filter}' saved to '{filtered_filename}'.")
+
+    # Preview
+    print(f"\nFiltered data preview for sentiment '{sentiment_to_filter}':")
     print(filtered_data[['publishedAt', 'videoTitle', 'text', 'sentiment', 'sentiment_score']].head(10))
+
+if __name__ == "__main__":
+    test_sentiment_filtering()
+    print("All tests passed successfully!")
