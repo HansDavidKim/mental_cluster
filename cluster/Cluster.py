@@ -6,8 +6,6 @@ import numpy as np
 from sklearn.manifold import SpectralEmbedding
 from sklearn.preprocessing import StandardScaler
 from cluster.DimReductionOption import DimReductionOptions
-from ast import literal_eval
-
 
 class Cluster:
     def __init__(self, 
