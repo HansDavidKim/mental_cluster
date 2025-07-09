@@ -1,5 +1,5 @@
-from AbsSentimentFiltering import *
-from filtering_options import *
+from filtering.sentiment_filtering.AbsSentimentFiltering import *
+from filtering.filtering_options import *
 
 class VotingSentimentFilter(AbsSentimentFilter):
     def __init__(self, 
