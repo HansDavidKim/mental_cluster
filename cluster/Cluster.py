@@ -3,7 +3,7 @@
 import pandas as pd
 import numpy as np
 
-from sklearn.manifold import TSNE
+from sklearn.manifold import SpectralEmbedding
 from sklearn.preprocessing import StandardScaler
 from cluster.DimReductionOption import DimReductionOptions
 from ast import literal_eval
@@ -14,15 +14,12 @@ class Cluster:
                  n_components: int = 10
                  ):
         
-        ### According to the experiment we conducted, PCA_family algorithms had the highest trustworthiness scores.
-        ### Thus, we adopt PCA as the default algorithm for dimensionality reduction.
-        self.tsne = TSNE(n_components=n_components, 
-                        perplexity=30, 
-                        random_state=42, 
-                        n_iter=1000, 
-                        learning_rate='auto', 
-                        init='random', 
-                        verbose=4)
+        self.se = SpectralEmbedding(
+            n_components=n_components, 
+            random_state=42, 
+            n_neighbors=10, 
+            eigen_solver='arpack'
+        )
         
     def fit_transform(self, X: pd.DataFrame) -> pd.DataFrame:
         """
@@ -41,7 +38,7 @@ class Cluster:
         # Standardize the data
         scaler = StandardScaler()
         logits_matrix = scaler.fit_transform(logits_matrix)
-        reduced = self.tsne.fit_transform(logits_matrix)
+        reduced = self.se.fit_transform(logits_matrix)
 
         X = X.copy()
         X['reduced_logits'] = list(reduced)
