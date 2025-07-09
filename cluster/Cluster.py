@@ -4,6 +4,8 @@ import pandas as pd
 import numpy as np
 from sklearn.decomposition import PCA
 from cluster.DimReductionOption import DimReductionOptions
+from ast import literal_eval
+
 
 class Cluster:
     def __init__(self, 
@@ -24,8 +26,13 @@ class Cluster:
         Returns:
         pd.DataFrame: The transformed data after PCA.
         """
+        
+        if isinstance(X['prob_logits'].iloc[0], str):
+            X['prob_logits'] = X['prob_logits'].apply(literal_eval)
+
         logits_matrix = np.vstack(X['prob_logits'].to_numpy())
         reduced = self.pca.fit_transform(logits_matrix)
 
+        X = X.copy()
         X['reduced_logits'] = list(reduced)
         return X
