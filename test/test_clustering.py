@@ -165,9 +165,9 @@ if __name__ == "__main__":
     data = pd.read_csv(data_path)
     data = cluster_object.fit_transform(data)
 
-    cluster_and_save(data, k_range=range(2, 16),
+    cluster_and_save(data, k_range=range(2, 21),
                      reduced_col="reduced_logits",
                      save_csv_path="clustered_data.csv",
                      save_img_path="clustered_plot.png")
     
-    cluster_and_save_spectral(data, k_range=range(2, 11))
+    cluster_and_save_spectral(data, k_range=range(2, 21))
