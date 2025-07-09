@@ -9,7 +9,7 @@ import cluster.Cluster as Cluster
 from cluster.DimReductionOption import DimReductionOptions
 
 if __name__ == '__main__':
-    data_path = './data/labeled_sentiment_data.csv'
+    data_path = './data/filtered_sentiment_data_분노.csv'
     n_components = 2
     perplexity = 30
     cluster_object = Cluster.Cluster(n_components=15)
