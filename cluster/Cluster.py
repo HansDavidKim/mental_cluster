@@ -2,7 +2,8 @@
 ### Thus, we adopt PCA as the default algorithm for dimensionality reduction.
 import pandas as pd
 import numpy as np
-from sklearn.decomposition import PCA
+
+from sklearn.manifold import TSNE
 from sklearn.preprocessing import StandardScaler
 from cluster.DimReductionOption import DimReductionOptions
 from ast import literal_eval
@@ -10,12 +11,18 @@ from ast import literal_eval
 
 class Cluster:
     def __init__(self, 
-                 n_components: int = 15
+                 n_components: int = 10
                  ):
         
         ### According to the experiment we conducted, PCA_family algorithms had the highest trustworthiness scores.
         ### Thus, we adopt PCA as the default algorithm for dimensionality reduction.
-        self.pca = PCA(n_components=n_components)
+        self.tsne = TSNE(n_components=n_components, 
+                        perplexity=30, 
+                        random_state=42, 
+                        n_iter=1000, 
+                        learning_rate='auto', 
+                        init='random', 
+                        verbose=4)
         
     def fit_transform(self, X: pd.DataFrame) -> pd.DataFrame:
         """
@@ -27,7 +34,6 @@ class Cluster:
         Returns:
         pd.DataFrame: The transformed data after PCA.
         """
-        # NumPy 포맷의 문자열 벡터를 float 배열로 변환
         if isinstance(X['prob_logits'].iloc[0], str):
             X['prob_logits'] = X['prob_logits'].apply(lambda s: np.fromstring(s.strip("[]"), sep=" "))
 
@@ -35,7 +41,7 @@ class Cluster:
         # Standardize the data
         scaler = StandardScaler()
         logits_matrix = scaler.fit_transform(logits_matrix)
-        reduced = self.pca.fit_transform(logits_matrix)
+        reduced = self.tsne.fit_transform(logits_matrix)
 
         X = X.copy()
         X['reduced_logits'] = list(reduced)
