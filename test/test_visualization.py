@@ -6,6 +6,7 @@ from visualize_reduced_logits import visualize_reduced_logits
 
 import pandas as pd
 import cluster.Cluster as Cluster
+from cluster.DimReductionOption import DimReductionOptions
 
 if __name__ == '__main__':
     data_path = './data/labeled_sentiment_data.csv'
