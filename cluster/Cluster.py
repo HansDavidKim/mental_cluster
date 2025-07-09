@@ -19,16 +19,16 @@ class Cluster:
     def fit_transform(self, X: pd.DataFrame) -> pd.DataFrame:
         """
         Fit the PCA model and transform the data.
-        
+
         Parameters:
         X (pd.DataFrame): The input data to be transformed.
-        
+
         Returns:
         pd.DataFrame: The transformed data after PCA.
         """
-        
+        # NumPy 포맷의 문자열 벡터를 float 배열로 변환
         if isinstance(X['prob_logits'].iloc[0], str):
-            X['prob_logits'] = X['prob_logits'].apply(literal_eval)
+            X['prob_logits'] = X['prob_logits'].apply(lambda s: np.fromstring(s.strip("[]"), sep=" "))
 
         logits_matrix = np.vstack(X['prob_logits'].to_numpy())
         reduced = self.pca.fit_transform(logits_matrix)
