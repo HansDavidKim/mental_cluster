@@ -12,7 +12,7 @@ import cluster.Cluster as Cluster
 from sklearn.manifold import TSNE
 
 def cluster_and_save(data: pd.DataFrame,
-                     k_range=range(2, 11),
+                     k_range=range(2, 21),
                      reduced_col: str = "reduced_logits",
                      save_csv_path: str = "clustered_data.csv",
                      save_img_path: str = "clustered_plot.png",
@@ -64,7 +64,7 @@ def cluster_and_save(data: pd.DataFrame,
     # 시각화 저장
     plt.figure(figsize=(10, 8))
     num_clusters = best_k
-    cmap = plt.get_cmap("tab10" if num_clusters <= 10 else "tab20")
+    cmap = plt.get_cmap("tab10" if num_clusters <= 20 else "tab20")
     colors = cmap(np.linspace(0, 1, num_clusters))
 
     for i in range(num_clusters):
@@ -83,7 +83,7 @@ def cluster_and_save(data: pd.DataFrame,
 
 
 def cluster_and_save_spectral(data: pd.DataFrame,
-                               k_range=range(2, 11),
+                               k_range=range(2, 21),
                                reduced_col: str = "reduced_logits",
                                save_csv_path: str = "clustered_data_spectral.csv",
                                save_img_path: str = "clustered_plot_spectral.png",
@@ -140,7 +140,7 @@ def cluster_and_save_spectral(data: pd.DataFrame,
     # 시각화 저장
     plt.figure(figsize=(10, 8))
     num_clusters = best_k
-    cmap = plt.get_cmap("tab10" if num_clusters <= 10 else "tab20")
+    cmap = plt.get_cmap("tab10" if num_clusters <= 20 else "tab20")
     colors = cmap(np.linspace(0, 1, num_clusters))
 
     for i in range(num_clusters):
@@ -161,11 +161,11 @@ if __name__ == "__main__":
     data_path = './data/filtered_sentiment_data_분노.csv'
     n_components = 2
     perplexity = 30
-    cluster_object = Cluster.Cluster(n_components=15)
+    cluster_object = Cluster.Cluster(n_components=10)
     data = pd.read_csv(data_path)
     data = cluster_object.fit_transform(data)
 
-    cluster_and_save(data, k_range=range(2, 11),
+    cluster_and_save(data, k_range=range(2, 16),
                      reduced_col="reduced_logits",
                      save_csv_path="clustered_data.csv",
                      save_img_path="clustered_plot.png")
