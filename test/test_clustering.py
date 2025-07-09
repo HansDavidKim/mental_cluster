@@ -6,6 +6,7 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.cluster import KMeans
+from sklearn.cluster import SpectralClustering
 from sklearn.metrics import silhouette_score
 import cluster.Cluster as Cluster
 from sklearn.manifold import TSNE
