@@ -18,6 +18,9 @@ def visualize_reduced_logits(data: pd.DataFrame, n_components: int = 2, perplexi
     None: Displays a scatter plot of the reduced logits.
     """
     # Extract the reduced logits
+    if isinstance(data['reduced_logits'].iloc[0], str):
+        data['reduced_logits'] = data['reduced_logits'].apply(lambda s: np.fromstring(s.strip("[]"), sep=" "))
+
     reduced_logits = np.vstack(data['reduced_logits'].to_numpy())
     
     # Apply t-SNE
