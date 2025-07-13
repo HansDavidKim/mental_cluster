@@ -64,10 +64,13 @@ def preprocess_video_title(data: pd.DataFrame) -> pd.DataFrame:
         title = re.sub(r'\s{2,}', ' ', title)
         title = title.replace("…", " ")
         return title.strip()
-
+    
     # Apply to DataFrame
     data = data.copy()
     data['cleanTitle'] = data['videoTitle'].apply(clean_title)
+    data['title_only'] = '[TITLE] ' + data['cleanTitle']
+    data['comment_only'] = '[COMMENT] ' + data['text']
+    data['title_comment'] = '[TITLE] ' + data['cleanTitle'] + ' [COMMENT] ' + data['text']
     return data
 
 if __name__ == "__main__":
