@@ -68,7 +68,7 @@ if __name__ == "__main__":
     ### Step 3.5 :   Cluster embedding vectors with given algorithm
     cluster_label = cluster.cluster(embedding, method=args.method.lower())
     df["cluster"] = list(cluster_label)
-    df.to_csv(f"./result{args.column}.csv", index=False)
+    df.to_csv(f"./result/[{args.column}].csv", index=False)
 
     print("\nExample data >\n")
     print(df.head(4))
