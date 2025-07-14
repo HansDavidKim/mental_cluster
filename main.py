@@ -68,7 +68,7 @@ if __name__ == "__main__":
     ### Step 3.5 :   Cluster embedding vectors with given algorithm
     cluster_label = cluster.cluster(embedding, method=args.method.lower())
     df["cluster"] = list(cluster_label)
-    df.to_csv(f"./result/[{args.column}].csv", index=False)
+    df.to_csv(f"./result/[{args.column}_{args.topic}_{args.sentiment}].csv", index=False)
 
     print("\nExample data >\n")
     print(df.head(4))
@@ -77,4 +77,4 @@ if __name__ == "__main__":
     reduced = reduce_dimension(embedding)
 
     ### Step 4.5 :   Save figure
-    plot_clusters(embedding, cluster_label, f"[{args.column}].png")
+    plot_clusters(embedding, cluster_label, f"[[{args.column}_{args.topic}_{args.sentiment}].png")
