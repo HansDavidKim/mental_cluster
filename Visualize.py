@@ -25,5 +25,5 @@ def plot_clusters(embedded: np.ndarray, labels: np.ndarray, save_path: str = "ts
     plt.legend()
     plt.tight_layout()
     plt.savefig(f'./result/{save_path}')
-    print(f"[✔] 시각화 저장 완료: {save_path}")
+    print(f"[✔] Visualization Finished: {save_path}")
     plt.close()
