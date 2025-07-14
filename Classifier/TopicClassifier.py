@@ -1,6 +1,7 @@
 ### Topic Classification Module : KLUE-TC based BERT Model
 ### Model Name: seongju/klue-tc-bert-base-multilingual-cased
 
+import torch
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 
 class TopicClassifier:
@@ -13,7 +14,6 @@ class TopicClassifier:
         self.model.eval()
 
         self.mapping = {0: 'IT/과학', 1: '경제', 2: '사회', 3: '생활/문화', 4: '세계', 5: '스포츠', 6: '정치'}
-
 
     def classify(self, texts: list) -> list:
         '''
