@@ -1,18 +1,9 @@
-### Python file for defining filtering options for sentiment data.
-from enum import Enum
+### Sentiment Classifier Module : DataLoader for Sentiment Analysis
+### Model : hun3359/klue-bert-base-sentiment
 
-### Enum class for sentiment filtering options :
-### 
-### - ARGMAX: Selects the sentiment with the highest score. Mapping subclass to super class.
-### 
-### - VOTING: Uses a voting mechanism to determine the sentiment. 
-###           Mapping subclass to super class with voting (summation of scores).
-###
-### - SUBCLASS: Uses the subclass of the sentiment for filtering.
-
-class SentimentFilteringOptions(Enum):
-    VOTING = "voting"
-    SUBCLASS = "subclass"
+import torch
+import pandas as pd
+from transformers import AutoTokenizer, AutoModelForSequenceClassification
 
 id2label = {
     0: "분노",
@@ -75,8 +66,7 @@ id2label = {
     57: "안도",
     58: "신이 난",
     59: "자신하는"
-}
-
+},
 label2id = {
     "분노": 0,
     "툴툴대는": 1,
@@ -140,16 +130,64 @@ label2id = {
     "자신하는": 59
 }
 
-superclass_to_subclasses = {
-    "분노": ["툴툴대는", "좌절한", "짜증내는", "방어적인", "악의적인", "안달하는", "구역질 나는", "노여워하는", "성가신"],
-    "슬픔": ["실망한", "비통한", "후회되는", "우울한", "마비된", "염세적인", "눈물이 나는", "낙담한", "환멸을 느끼는"],
-    "불안": ["두려운", "스트레스 받는", "취약한", "혼란스러운", "당혹스러운", "회의적인", "걱정스러운", "조심스러운", "초조한"],
-    "상처": ["질투하는", "배신당한", "고립된", "충격 받은", "가난한 불우한", "희생된", "억울한", "괴로워하는", "버려진"],
-    "당황": ["고립된(당황한)", "남의 시선을 의식하는", "외로운", "열등감", "죄책감의", "부끄러운", "혐오스러운", "한심한", "혼란스러운(당황한)"],
-    "기쁨": ["감사하는", "신뢰하는", "편안한", "만족스러운", "흥분", "느긋", "안도", "신이 난", "자신하는"]
-}
+SUB = 'subclass'
+VOTING = 'voting'
 
-superclass_to_indices = {
-    superclass: [label2id[label] for label in subclasses]
-    for superclass, subclasses in superclass_to_subclasses.items()
-}
+TITLE_ONLY = 'title_only'
+COMMENT_ONLY = 'comment_only'
+TITLE_COMMENT = 'title_comment'
+
+### Sub-class to super-class in sentiment classification
+def sub2sup(label: int) -> int:
+    return label // 10
+
+class SentimentClassifier:
+    def __init__(self, model_name: str = 'hun3359/klue-bert-base-sentiment'):
+        """
+        Initialize the SentimentClassifier with a pre-trained model and tokenizer.
+        
+        :param model_name: Name of the pre-trained model to use.
+        """
+        self.tokenizer = AutoTokenizer.from_pretrained(model_name)
+        self.model = AutoModelForSequenceClassification.from_pretrained(model_name)
+        self.model.eval()
+    
+    def classify(self, df: pd.DataFrame, mode: str = SUB, text_format: str = 'title_comment') -> pd.DataFrame:
+        """
+        Classify the input DataFrame into sentiment categories.
+        
+        :param df: DataFrame with a 'text' column.
+        :param mode: Classification mode, either 'subclass' or 'voting'.
+        :return: DataFrame with an additional 'sentiment' column.
+        """
+        if text_format not in df.columns:
+            raise ValueError(f"DataFrame must contain a '{text_format}' column.")
+
+        texts = df['text'].tolist()
+        inputs = self.tokenizer(texts, return_tensors='pt', padding=True, truncation=True)
+
+        with torch.no_grad():
+            outputs = self.model(**inputs)
+            logits = outputs.logits
+            probabilities = torch.softmax(logits, dim=-1)
+
+        if mode == SUB:
+            predictions = torch.argmax(logits, dim=-1).tolist()
+            df['sentiment'] = [id2label[pred] for pred in predictions]
+        elif mode == VOTING:
+            # For voting, we sum the probabilities of super-classes
+            super_class_prob = torch.zeros((probabilities.shape[0], 6))  # 6 super-classes
+
+            for i in range(60):  # 60 sub-classes
+                super_class = sub2sup(i)
+                super_class_prob[:, super_class] += probabilities[:, i]
+            predictions = torch.argmax(super_class_prob, dim=-1).tolist()
+            probabilities = super_class_prob
+            df['sentiment'] = [id2label[pred * 10] for pred in predictions]  # Map to super-class labels
+        else:
+            raise ValueError(f"Unsupported mode: {mode}. Supported modes are 'subclass' and 'voting'.")
+        
+        df['probabilities'] = probabilities.tolist()
+        df['text_format'] = text_format
+        df['mode'] = mode
+        return df
