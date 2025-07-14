@@ -77,4 +77,4 @@ if __name__ == "__main__":
     reduced = reduce_dimension(embedding)
 
     ### Step 4.5 :   Save figure
-    plot_clusters(embedding, cluster_label, f"[[{args.column}_{args.topic}_{args.sentiment}].png")
+    plot_clusters(embedding, cluster_label, f"[{args.column}_{args.topic}_{args.sentiment}].png")
