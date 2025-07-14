@@ -1,0 +1,7 @@
+[cluster]
+method="kmeans"
+column="title_comment"
+[topic]
+filter="None"
+[sentiment]
+filter="None"
