@@ -36,7 +36,7 @@ if __name__ == "__main__":
     ### Print arguments using for loop.
     print("\nArguments Received [✔]")
     for key, value in vars(args).items():
-        print(f"    {key:<16}: {value}")
+        print(f"    {key:<17}: {value}")
 
     ### Load Data with preprocessing
     print("\nExample data >\n")
