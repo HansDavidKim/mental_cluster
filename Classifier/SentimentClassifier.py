@@ -152,41 +152,48 @@ class SentimentClassifier:
         self.model = AutoModelForSequenceClassification.from_pretrained(model_name)
         self.model.eval()
     
-    def classify(self, df: pd.DataFrame, mode: str = SUB, text_format: str = 'title_comment') -> pd.DataFrame:
+
+    def classify(self, df: pd.DataFrame, mode: str = SUB, text_format: str = 'title_comment', batch_size: int = 32) -> pd.DataFrame:
         """
-        Classify the input DataFrame into sentiment categories.
-        
-        :return: DataFrame with an additional 'sentiment' column.
+        Classify the input DataFrame into sentiment categories with optional batching and tqdm.
         """
+        from tqdm import tqdm  # 상단에 추가
+
         if text_format not in df.columns:
             raise ValueError(f"DataFrame must contain a '{text_format}' column.")
 
-        texts = df[f'{text_format}'].tolist()
-        inputs = self.tokenizer(texts, return_tensors='pt', padding=True, truncation=True, max_length=512,)
+        texts = df[text_format].tolist()
+        all_preds = []
+        all_probs = []
 
-        with torch.no_grad():
-            outputs = self.model(**inputs)
-            logits = outputs.logits
-            probabilities = torch.softmax(logits, dim=-1)
+        for i in tqdm(range(0, len(texts), batch_size), desc="Sentiment Classification"):
+            batch_texts = texts[i:i+batch_size]
+            inputs = self.tokenizer(batch_texts, return_tensors='pt', padding=True, truncation=True, max_length=512)
 
-        if mode == SUB:
-            predictions = torch.argmax(logits, dim=-1).tolist()
-            df['sentiment'] = [id2label[pred] for pred in predictions]
-        elif mode == VOTING:
-            # For voting, we sum the probabilities of super-classes
-            super_class_prob = torch.zeros((probabilities.shape[0], 6))  # 6 super-classes
+            with torch.no_grad():
+                outputs = self.model(**inputs)
+                logits = outputs.logits
+                probs = torch.softmax(logits, dim=-1)
 
-            for i in range(60):  # 60 sub-classes
-                super_class = sub2sup(i)
-                super_class_prob[:, super_class] += probabilities[:, i]
-            predictions = torch.argmax(super_class_prob, dim=-1).tolist()
-            probabilities = super_class_prob
-            df['sentiment'] = [id2label[pred * 10] for pred in predictions]  # Map to super-class labels
-        else:
-            raise ValueError(f"Unsupported mode: {mode}. Supported modes are 'subclass' and 'voting'.")
-        
-        df['probabilities'] = probabilities.tolist()
-        # df['sentiment_score'] = max(probabilities.tolist())
+            if mode == SUB:
+                preds = torch.argmax(logits, dim=-1).tolist()
+            elif mode == VOTING:
+                super_class_prob = torch.zeros((probs.shape[0], 6))
+                for j in range(60):
+                    super_class = sub2sup(j)
+                    super_class_prob[:, super_class] += probs[:, j]
+                probs = super_class_prob
+                preds = torch.argmax(probs, dim=-1).tolist()
+                preds = [super_class * 10 for super_class in preds]
+            else:
+                raise ValueError(f"Unsupported mode: {mode}. Supported modes are 'subclass' and 'voting'.")
+
+            all_preds.extend(preds)
+            all_probs.extend(probs.tolist())
+
+        df['sentiment'] = [id2label[p] for p in all_preds]
+        df['probabilities'] = all_probs
         df['text_format'] = text_format
         df['mode'] = mode
+
         return df
