@@ -38,39 +38,10 @@ def preprocess_video_title(data: pd.DataFrame) -> pd.DataFrame:
     :return: DataFrame with 'cleanTitle'.
     """
 
-    def clean_title(title: str) -> str:
-        if pd.isna(title):
-            return title
-
-        # 1. Remove [ ... ] and ( ... )
-        title = re.sub(r'\[.*?\]', '', title)
-        title = re.sub(r'\(.*?\)', '', title)
-
-        # 2. Remove date expressions
-        title = re.sub(r'\d{4}년\s*\d{1,2}월\s*\d{1,2}일', '', title)
-        title = re.sub(r'\d{4}[./-]\d{1,2}[./-]\d{1,2}', '', title)
-        title = re.sub(r'\d{2}[./-]\d{1,2}[./-]\d{1,2}', '', title)
-
-        # 3. Remove news agency names
-        title = re.sub(r'(MBC|KBS|SBS|JTBC|YTN|TV조선|연합뉴스|채널A)\s*뉴스', '', title, flags=re.IGNORECASE)
-
-        # 4. Remove tags like LIVE, 단독, 속보
-        title = re.sub(r'\b(LIVE|단독|속보)\b', '', title, flags=re.IGNORECASE)
-
-        # 5. Remove delimiters
-        title = re.sub(r'[-–~—]+', '', title)
-
-        # 6. Collapse multiple spaces and strip
-        title = re.sub(r'\s{2,}', ' ', title)
-        title = title.replace("…", " ")
-        return title.strip()
-    
     # Apply to DataFrame
     data = data.copy()
-    data['cleanTitle'] = data['videoTitle'].apply(clean_title)
-    data['title_only'] = '[TITLE] ' + data['cleanTitle']
-    data['comment_only'] = '[COMMENT] ' + data['text']
-    data['title_comment'] = '[TITLE] ' + data['cleanTitle'] + ' [COMMENT] ' + data['text']
+    data['comment_only'] = '[COMMENT] ' + data['cleanText']
+    data['title_comment'] = '[TITLE] ' + data['title'] + ' [COMMENT] ' + data['text']
     return data
 
 if __name__ == "__main__":

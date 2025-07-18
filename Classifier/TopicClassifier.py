@@ -23,10 +23,10 @@ class TopicClassifier:
         :param df: DataFrame with a 'cleanTitle' column.
         :return: DataFrame with an additional 'topic' column.
         """
-        if 'cleanTitle' not in df.columns:
-            raise ValueError("DataFrame must contain a 'videoTitle' column.")
+        if 'title' not in df.columns:
+            raise ValueError("DataFrame must contain a 'title' column.")
 
-        titles = df['cleanTitle'].tolist()
+        titles = df['title'].tolist()
         inputs = self.tokenizer(titles, return_tensors='pt', padding=True, truncation=True)
 
         with torch.no_grad():

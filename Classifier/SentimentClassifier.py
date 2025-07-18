@@ -133,7 +133,7 @@ label2id = {
 SUB = 'subclass'
 VOTING = 'voting'
 
-TITLE_ONLY = 'title_only'
+TITLE_ONLY = 'title'
 COMMENT_ONLY = 'comment_only'
 TITLE_COMMENT = 'title_comment'
 
@@ -156,15 +156,13 @@ class SentimentClassifier:
         """
         Classify the input DataFrame into sentiment categories.
         
-        :param df: DataFrame with a 'text' column.
-        :param mode: Classification mode, either 'subclass' or 'voting'.
         :return: DataFrame with an additional 'sentiment' column.
         """
         if text_format not in df.columns:
             raise ValueError(f"DataFrame must contain a '{text_format}' column.")
 
-        texts = df['text'].tolist()
-        inputs = self.tokenizer(texts, return_tensors='pt', padding=True, truncation=True)
+        texts = df[f'{text_format}'].tolist()
+        inputs = self.tokenizer(texts, return_tensors='pt', padding=True, truncation=True, max_length=512,)
 
         with torch.no_grad():
             outputs = self.model(**inputs)
@@ -188,6 +186,7 @@ class SentimentClassifier:
             raise ValueError(f"Unsupported mode: {mode}. Supported modes are 'subclass' and 'voting'.")
         
         df['probabilities'] = probabilities.tolist()
+        # df['sentiment_score'] = max(probabilities.tolist())
         df['text_format'] = text_format
         df['mode'] = mode
         return df
