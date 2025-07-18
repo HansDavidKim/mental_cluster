@@ -16,7 +16,7 @@ class TopicClassifier:
 
         self.mapping = {0: 'IT/과학', 1: '경제', 2: '사회', 3: '생활/문화', 4: '세계', 5: '스포츠', 6: '정치'}
 
-    def classify(self, df: pd.DataFrame, batch_size: int = 32) -> pd.DataFrame:
+    def classify(self, df: pd.DataFrame, batch_size: int = 128) -> pd.DataFrame:
         """
         Classify the input DataFrame into topic categories with tqdm and batch processing.
 

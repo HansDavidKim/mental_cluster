@@ -153,7 +153,7 @@ class SentimentClassifier:
         self.model.eval()
     
 
-    def classify(self, df: pd.DataFrame, mode: str = SUB, text_format: str = 'title_comment', batch_size: int = 32) -> pd.DataFrame:
+    def classify(self, df: pd.DataFrame, mode: str = SUB, text_format: str = 'title_comment', batch_size: int = 128) -> pd.DataFrame:
         """
         Classify the input DataFrame into sentiment categories with optional batching and tqdm.
         """
