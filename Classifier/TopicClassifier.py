@@ -1,17 +1,16 @@
-### Topic Classification Module : KLUE-TC based BERT Model
-### Model Name: seongju/klue-tc-bert-base-multilingual-cased
-
 import torch
 import pandas as pd
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 
 class TopicClassifier:
     '''
-    Class for topic classification using a pre-trained model.
+    Class for topic classification using a pre-trained model with optional GPU support.
     '''
     def __init__(self, model_name: str = 'seongju/klue-tc-bert-base-multilingual-cased'):
+        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
         self.tokenizer = AutoTokenizer.from_pretrained(model_name)
-        self.model = AutoModelForSequenceClassification.from_pretrained(model_name)
+        self.model = AutoModelForSequenceClassification.from_pretrained(model_name).to(self.device)
         self.model.eval()
 
         self.mapping = {0: 'IT/과학', 1: '경제', 2: '사회', 3: '생활/문화', 4: '세계', 5: '스포츠', 6: '정치'}
@@ -27,7 +26,7 @@ class TopicClassifier:
         if 'title' not in df.columns:
             raise ValueError("DataFrame must contain a 'title' column.")
 
-        from tqdm import tqdm  # 함수 내부에서 import
+        from tqdm import tqdm  # 함수 내부 import
 
         titles = df['title'].tolist()
         all_preds = []
@@ -35,6 +34,7 @@ class TopicClassifier:
         for i in tqdm(range(0, len(titles), batch_size), desc="Topic Classification"):
             batch_titles = titles[i:i + batch_size]
             inputs = self.tokenizer(batch_titles, return_tensors='pt', padding=True, truncation=True, max_length=512)
+            inputs = {k: v.to(self.device) for k, v in inputs.items()}  # Move inputs to device
 
             with torch.no_grad():
                 outputs = self.model(**inputs)
