@@ -61,9 +61,12 @@ if __name__ == "__main__":
         df = df[df["sentiment"] == args.sentiment]
         print(f"\n[✔] Sentiment filter applied")
 
+    print("Started clustering")
     ### Step 3   :   Embed sentence with SBERT
     cluster = Cluster()
     embedding = cluster.encode(df, args.column)
+
+    print("[✔] Finished Embedding")
 
     ### Step 3.5 :   Cluster embedding vectors with given algorithm
     cluster_label = cluster.cluster(embedding, method=args.method.lower())
