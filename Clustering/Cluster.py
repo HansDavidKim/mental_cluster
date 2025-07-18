@@ -26,7 +26,7 @@ class Cluster:
         self.tokenizer = AutoTokenizer.from_pretrained(model_name)
         self.model = AutoModel.from_pretrained(model_name)
 
-    def encode(self, data: pd.DataFrame, text_column: str = 'title_copmment') -> np.ndarray:
+    def encode(self, data: pd.DataFrame, text_column: str = 'title_comment') -> np.ndarray:
         """
         Encode the text data into embeddings.
         
@@ -73,6 +73,8 @@ class Cluster:
         
         return best_labels
     
+    from tqdm import tqdm  # 맨 위에 추가
+
     def grid_search_cluster(self, embeddings: np.ndarray, method: str = 'kmeans', param_grid: dict = None) -> tuple:
         """
         Perform manual grid search for optimal clustering parameters using silhouette score.
@@ -82,13 +84,14 @@ class Cluster:
 
         # Generate all combinations of parameters
         keys = list(param_grid.keys())
-        for values in itertools.product(*[param_grid[k] for k in keys]):
+        param_combinations = list(itertools.product(*[param_grid[k] for k in keys]))
+
+        for values in tqdm(param_combinations, desc=f"Grid Search ({method})"):
             params = dict(zip(keys, values))
 
             if method == 'kmeans':
                 model = KMeans(**params, random_state=42)
             elif method == 'agglomerative':
-                # AgglomerativeClustering does not support random_state or 'ward' with non-Euclidean metrics
                 if params.get('linkage') == 'ward':
                     model = AgglomerativeClustering(**params, metric='euclidean')
                 else:
