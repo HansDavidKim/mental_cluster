@@ -4,7 +4,7 @@ import pandas as pd
 import itertools
 
 from transformers import AutoTokenizer, AutoModel
-from sklearn.cluster import KMeans, AgglomerativeClustering
+from sklearn.cluster import KMeans, AgglomerativeClustering, DBSCAN
 from sklearn.metrics import silhouette_score
 
 
@@ -28,11 +28,6 @@ class Cluster:
     def encode(self, data: pd.DataFrame, text_column: str = 'title_comment', batch_size: int = 128) -> np.ndarray:
         """
         Encode the text data into embeddings with optional batching and GPU support.
-
-        :param data: DataFrame containing the text data.
-        :param text_column: Column name containing the text to encode.
-        :param batch_size: Batch size for encoding.
-        :return: Numpy array of embeddings.
         """
         from tqdm import tqdm
 
@@ -58,10 +53,7 @@ class Cluster:
     def cluster(self, embeddings: np.ndarray, method: str = 'kmeans') -> np.ndarray:
         """
         Perform clustering on the embeddings using the specified method.
-
-        :param embeddings: Numpy array of embeddings.
-        :param method: Clustering method ('kmeans' or 'agglomerative').
-        :return: Numpy array of cluster labels.
+        Supported methods: 'kmeans', 'agglomerative', 'dbscan'
         """
         if method == 'kmeans':
             grid_search_params = {
@@ -75,20 +67,22 @@ class Cluster:
                 'n_clusters': [2, 3, 4, 5, 6, 7, 8, 9, 10],
                 'linkage': ['ward', 'complete', 'average', 'single']
             }
+        elif method == 'dbscan':
+            grid_search_params = {
+                'eps': [0.3, 0.5, 0.7, 1.0, 1.2],
+                'min_samples': [3, 5, 10]
+            }
         else:
-            raise ValueError("Unsupported clustering method. Use 'kmeans' or 'agglomerative'.")
+            raise ValueError("Unsupported clustering method. Use 'kmeans', 'agglomerative', or 'dbscan'.")
 
         best_labels, best_score = self.grid_search_cluster(embeddings, method=method, param_grid=grid_search_params)
+        print(f"✅ Best Silhouette Score: {best_score:.4f}")
         return best_labels
 
     def grid_search_cluster(self, embeddings: np.ndarray, method: str = 'kmeans', param_grid: dict = None) -> tuple:
         """
         Perform manual grid search for optimal clustering parameters using silhouette score.
-
-        :param embeddings: Embedding vectors.
-        :param method: Clustering method.
-        :param param_grid: Dictionary of hyperparameter search space.
-        :return: Tuple of (best_labels, best_score)
+        For DBSCAN, skip configs where only one cluster or all noise points.
         """
         from tqdm import tqdm
 
@@ -108,11 +102,20 @@ class Cluster:
                     model = AgglomerativeClustering(**params, metric='euclidean')
                 else:
                     model = AgglomerativeClustering(**params)
+            elif method == 'dbscan':
+                model = DBSCAN(**params, metric='euclidean')
             else:
                 raise ValueError("Unsupported clustering method")
 
             try:
                 labels = model.fit_predict(embeddings)
+
+                # For DBSCAN, skip cases where only one cluster or all points are noise
+                if method == 'dbscan':
+                    n_clusters = len(set(labels)) - (1 if -1 in labels else 0)
+                    if n_clusters <= 1:
+                        continue
+
                 score = silhouette_score(embeddings, labels)
 
                 if score > best_score:
